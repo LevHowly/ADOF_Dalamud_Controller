@@ -1,0 +1,7 @@
+{
+  "Name": "ADOF Dalamud Controller",
+  "Author": "LevHowly",
+  "RepoUrl": "https://github.com/LevHowly/ADOF_Dalamud_Controller",
+  "Description": "Control the ADOF depth-of-field shader during GPose.",
+  "Punchline": "Adjust ADOF without opening ReShade."
+}

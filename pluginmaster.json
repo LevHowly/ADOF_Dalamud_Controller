@@ -1,0 +1,23 @@
+[
+  {
+    "Author": "LevHowly",
+    "Name": "ADOF Dalamud Controller",
+    "InternalName": "ADOF_Dalamud_Controller",
+    "AssemblyVersion": "1.0.4.0",
+    "Description": "Control the ADOF depth-of-field shader during GPose.",
+    "ApplicableVersion": "any",
+    "RepoUrl": "https://github.com/LevHowly/ADOF_Dalamud_Controller",
+    "DalamudApiLevel": 15,
+    "LoadRequiredState": 0,
+    "LoadSync": false,
+    "CanUnloadAsync": false,
+    "LoadPriority": 0,
+    "Punchline": "Adjust ADOF without opening ReShade.",
+    "AcceptsFeedback": true,
+    "DownloadLinkInstall": "https://github.com/LevHowly/ADOF_Dalamud_Controller/releases/download/v1.0.4/latest.zip",
+    "DownloadLinkUpdate": "https://github.com/LevHowly/ADOF_Dalamud_Controller/releases/download/v1.0.4/latest.zip",
+    "DownloadLinkTesting": "https://github.com/LevHowly/ADOF_Dalamud_Controller/releases/download/v1.0.4/latest.zip",
+    "IsHide": false,
+    "IsTestingExclusive": false
+  }
+]
