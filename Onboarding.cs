@@ -44,9 +44,7 @@ public sealed class Onboarding
 
     public void Refresh()
     {
-        if (Operation is { IsCompleted: false })
-            return;
-        Operation = RefreshAsync();
+        Operation = RefreshAfterAsync(Operation);
     }
 
     public void Install()
@@ -56,9 +54,17 @@ public sealed class Onboarding
         Operation = InstallAsync();
     }
 
+    private async Task RefreshAfterAsync(Task? previous)
+    {
+        if (previous is not null)
+            await previous;
+        await RefreshAsync();
+    }
+
     private async Task RefreshAsync()
     {
         State = SetupState.Checking;
+        Message = "Checking ReShade / GShade installation automatically...";
         Error = null;
         try
         {
@@ -71,7 +77,14 @@ public sealed class Onboarding
                 Message = "Installation complete. Close the game completely and reopen it to load the native IPC add-on.";
                 return;
             }
+            Message = "Checking GPose ADOF IPC automatically...";
             var probe = await bridge.ProbeAsync();
+            for (var retry = 0; !probe.Ready && retry < 2; retry++)
+            {
+                Message = "Waiting for GPose ADOF IPC to become ready; retrying automatically...";
+                await Task.Delay(500);
+                probe = await bridge.ProbeAsync();
+            }
             State = probe.Ready ? SetupState.Ready :
                 probe.Connected ? SetupState.Error : SetupState.RestartRequired;
             Message = probe.Ready ? "GPose ADOF is installed and IPC is responding." :

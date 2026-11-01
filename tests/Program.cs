@@ -383,23 +383,39 @@ static class RegressionTests
             var ready = new Onboarding(directory, backups, client, errors.Add, Resource, (_, _) => true);
             await using var server = Server();
             ready.Refresh();
+            Check(ready.State == SetupState.Checking && ready.Message.Contains("automatically"),
+                "Automatic checking must replace stale setup messages");
             var request = await ReadRequest(server);
             Check(request.GetProperty("type").GetString() == "ping", "Setup must probe without changing effects");
+            var startupCheck = ready.Operation;
+            ready.Refresh();
+            Check(!ReferenceEquals(startupCheck, ready.Operation) && !ready.Operation!.IsCompleted,
+                "GPose entry during startup must queue a check without parallel operations");
+            await WriteProbeResponse(server, "{\"ok\":true,\"protocolVersion\":4}");
+            await ReadRequest(server);
             await WriteProbeResponse(server, "{\"ok\":true,\"protocolVersion\":4}");
             await ready.Operation!;
-            Check(ready.State == SetupState.Ready, "Verified files and live compatible IPC must unlock controls");
+            Check(ready.State == SetupState.Ready,
+                "Queued GPose-entry check must automatically unlock controls");
             ready.Refresh();
-            await ReadRequest(server);
-            await WriteProbeResponse(server, "{\"ok\":false,\"protocolVersion\":4,\"error\":\"Shader not loaded\"}");
+            for (var attempt = 0; attempt < 3; attempt++)
+            {
+                await ReadRequest(server);
+                Check(ready.State == SetupState.Checking,
+                    "IPC retries must remain automatic, not require a manual recheck");
+                await WriteProbeResponse(server, "{\"ok\":false,\"protocolVersion\":4,\"error\":\"Shader not loaded\"}");
+            }
             await ready.Operation!;
             Check(ready.State == SetupState.Error && ready.Message.Contains("Shader not loaded"),
                 "Installed but non-ready IPC must surface error");
             ready.Refresh();
             await ReadRequest(server);
+            await WriteProbeResponse(server, "{\"ok\":false,\"protocolVersion\":4,\"error\":\"Shader not loaded\"}");
+            await ReadRequest(server);
             await WriteProbeResponse(server, "{\"ok\":true,\"protocolVersion\":4}");
             await ready.Operation!;
             Check(ready.State == SetupState.Ready,
-                "A later GPose-triggered refresh must recover from startup IPC/shader readiness errors");
+                "GPose-triggered refresh must retry transient IPC/shader readiness errors without another click");
             Check(!Directory.GetFiles(Path.Combine(directory, "CustomAddons")).Any(path => path.Contains("backup")),
                 "No backups may be left in add-on directory");
         }

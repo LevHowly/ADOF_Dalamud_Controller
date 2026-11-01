@@ -57,7 +57,7 @@ public sealed class MainWindow : Window
                 if (ImGui.Button("Install GPose ADOF"))
                     onboarding.Install();
             }
-            else if (ImGui.Button("Recheck setup"))
+            else if (onboarding.State != SetupState.Checking && ImGui.Button("Recheck setup"))
                 onboarding.Refresh();
             ImGui.EndDisabled();
             return;
@@ -202,13 +202,6 @@ public sealed class MainWindow : Window
             ImGui.TextWrapped($"Calculation unavailable: {calculationError}");
         if (bridge.FocusCaptureError is not null)
             ImGui.TextWrapped($"Autofocus capture failed: {bridge.FocusCaptureError}");
-
-        ImGui.Separator();
-        ImGui.TextWrapped(bridge.Status);
-        ImGui.BeginDisabled(bridge.IsFocusCapturePending);
-        if (ImGui.Button("Recheck installation / IPC"))
-            onboarding.Refresh();
-        ImGui.EndDisabled();
     }
 
     private void RecalculateDepthLimits(float aperture, float focus)

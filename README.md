@@ -56,11 +56,15 @@ Installation is opt-in, verifies embedded file hashes and preserves existing
 copies under `install-backups/` in the Dalamud plugin configuration directory.
 It does not edit ReShade configuration, presets, other shaders or the injector.
 Filesystem/permission errors are displayed and logged in Dalamud. Use **Recheck
-setup** after correcting an error, or **Recheck installation / IPC** from the
-normal controls. Setup's `ping` is non-mutating and checks the loaded shader
+setup** after correcting a setup error. Setup status and recheck controls are
+hidden once setup is ready. Setup's `ping` is non-mutating and checks the loaded shader
 and required bridge uniforms before unlocking controls.
 Entering GPose automatically rechecks the files and live IPC every time, so
 setup errors detected during game startup can recover without a manual recheck.
+The setup screen shows automatic-check progress, not a recheck button, while
+checking. If the startup check is still running, the GPose-entry check is queued.
+IPC readiness is tried up to three times with a short delay before reporting an
+error; manual recheck remains available after a failed check.
 
 ### GShade compatibility (v1.0.2)
 
